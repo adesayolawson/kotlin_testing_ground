@@ -1,5 +1,9 @@
 import kotlinx.coroutines.*
 import kotlin.concurrent.thread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlin.coroutines.suspendCoroutine
 
 fun main() {
 //    (1..10000).forEach {
@@ -28,12 +32,20 @@ fun main() {
             println("The Job has NO children")
         }
         Thread.sleep(1000)
+    }
+}
 
 
+
+suspend fun <T : Any> getValue(provider: () -> T): T =
+    suspendCoroutine { continuation ->
+        continuation.resumeWith(Result.runCatching { provider() })
     }
-    fun testFun(){
-        thread {
-            
-        }
-    }
+
+fun executeBackground(action: suspend () -> Unit) {
+    GlobalScope.launch { action() }
+}
+
+fun executeMain(action: suspend () -> Unit) {
+    GlobalScope.launch(context = Dispatchers.Main) { action() }
 }

@@ -1,6 +1,10 @@
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+
 
 fun main() {
 //    val s = Scanner(System.`in`)
@@ -24,11 +28,28 @@ fun main() {
 
 //    println(0 % 3)
 
+    val v = listOf(".x", ".y", ".z").joinToString('\n'.toString())
+    val regex = "^100(\\.0{0,2})? *%?\$|^\\d{1,2}(\\.\\d{1,2})? *%?\$".toRegex()
+    val version = "10.23".matches(regex)
+    val secret = "CollectionCenter"
+    val testValue = "24".toFloatOrNull()
+    val range = (1..10000).chunked(100)
+    val jk = Calendar.getInstance().before("2023-10-10 00:00:00")
+    println(range)
 
-    println(vh[1])
+
+    val test = "IK00009853_200401075909_m,4281,T-1000000000008091,T-1000000000008191".encrypt()
+    println(test)
+    val testDecoded = test.decrypt()
+    println(testDecoded)
+
+    val vv = listOf("1","2","3","4")
+
+
 
 
 }
+
 
 fun parseAnyDateString(dateString: String): Date? {
     val dateFormats = arrayOf(
@@ -54,15 +75,46 @@ fun parseAnyDateString(dateString: String): Date? {
     return null
 }
 
-fun findMaxPairwiseProduct(numbers:List<Long>):Long{
+fun findMaxPairwiseProduct(numbers: List<Long>): Long {
     val multipliedList = mutableListOf<Long>()
     val sortedList = numbers.sortedDescending()
     val maxNumber = sortedList[0]
     val secondMaxNumber = sortedList[1]
-    numbers.forEach { num->
-        val newList = numbers.map { it*num }
+    numbers.forEach { num ->
+        val newList = numbers.map { it * num }
         multipliedList.addAll(newList)
     }
     println(multipliedList)
     return multipliedList.maxOrNull() ?: 0
+}
+
+fun String.encrypt(): String {
+    val secret = "babbanGona123456"
+    val secretIV = "1234567890123457"
+    val iv = IvParameterSpec(secretIV.toByteArray())
+    val keySpec = SecretKeySpec(secret.toByteArray(), "AES")
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
+    cipher.init(Cipher.ENCRYPT_MODE, keySpec, iv)
+    val crypted = cipher.doFinal(this.toByteArray())
+    val encoder = Base64.getEncoder()
+    val encodedByte = encoder.encode(crypted)
+    return String(encodedByte)
+}
+
+
+fun String.decrypt(): String {
+    val secret = "babbanGona123456"
+    val secretIV = "1234567890123457"
+    val decoder = Base64.getDecoder()
+    val decodedByte: ByteArray = decoder.decode(this)
+    val iv = IvParameterSpec(secretIV.toByteArray())
+    val keySpec = SecretKeySpec(secret.toByteArray(), "AES")
+    val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
+    cipher.init(Cipher.DECRYPT_MODE, keySpec, iv)
+    val output = cipher.doFinal(decodedByte)
+    return String(output)
+}
+
+fun test(){
+
 }
